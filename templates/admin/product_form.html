@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Редактировать' if product else 'Добавить' }} товар — LUMIÈRE Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1 class="admin-title">{{ 'Редактировать товар' if product else 'Новый товар' }}</h1>
+    <a href="{{ url_for('admin_products') }}" class="btn btn-outline">← Назад</a>
+</div>
+
+<div class="form-card">
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Название *</label>
+            <input type="text" name="name" value="{{ product.name if product else '' }}" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+                <label>Бренд *</label>
+                <input type="text" name="brand" value="{{ product.brand if product else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Категория *</label>
+                <select name="category" required>
+                    <option value="">Выберите...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if product and product.category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group">
+                <label>Цена (₸) *</label>
+                <input type="number" name="price" min="0" step="0.01" value="{{ product.price if product else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label>Остаток</label>
+                <input type="number" name="stock" min="0" value="{{ product.stock if product else 100 }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Описание</label>
+            <textarea name="description">{{ product.description if product else '' }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Ссылка на фото (URL)</label>
+            <input type="text" name="image_link" placeholder="https://images.unsplash.com/..." value="{{ product.image_url if product and product.image_url and product.image_url.startswith('http') else '' }}">
+        </div>
+        <div class="form-group">
+            <label>Или загрузите файл</label>
+            {% if product and product.image_url and not product.image_url.startswith('http') %}
+            <div style="margin-bottom:10px;">
+                <img src="{{ url_for('static', filename=product.image_url) }}" style="max-width:120px;max-height:120px;object-fit:cover;border:1px solid var(--soft);">
+            </div>
+            {% endif %}
+            <input type="file" name="image" accept="image/*" style="padding:8px 0;border:none;background:none;">
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--soft);">
+            <button type="submit" class="btn btn-primary">{{ 'Сохранить' if product else 'Добавить товар' }}</button>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline">Отмена</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

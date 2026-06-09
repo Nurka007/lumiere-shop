@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LUMIÈRE{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --cream: #faf6f1; --blush: #e8c9b8; --rose: #c9857a;
+            --deep: #2c1a15; --gold: #b89460; --soft: #f0e8e0;
+            --text: #3a2520; --muted: #8a6f68; --green: #4a7a4a;
+        }
+        body { font-family: 'Jost', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; }
+
+        nav {
+            background: var(--deep); padding: 0 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 70px; position: sticky; top: 0; z-index: 100;
+        }
+        .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: var(--blush); letter-spacing: 4px; text-decoration: none; }
+        .nav-logo em { color: var(--gold); font-style: italic; }
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { color: var(--blush); text-decoration: none; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-cart { position: relative; }
+        .cart-badge {
+            position: absolute; top: -8px; right: -10px;
+            background: var(--rose); color: white; border-radius: 50%;
+            width: 18px; height: 18px; font-size: 0.65rem;
+            display: flex; align-items: center; justify-content: center; font-weight: 500;
+        }
+        .btn-nav { background: var(--rose); color: white !important; padding: 7px 18px; }
+        .btn-nav:hover { background: var(--gold) !important; color: var(--deep) !important; }
+        .btn-admin { background: var(--gold) !important; color: var(--deep) !important; padding: 7px 18px; }
+
+        .flash-container { max-width: 1400px; margin: 16px auto; padding: 0 40px; }
+        .flash { padding: 12px 20px; margin-bottom: 8px; font-size: 0.83rem; letter-spacing: 1px; border-left: 3px solid; }
+        .flash.success { background: #f0f7f0; border-color: #6a9f6a; color: #2d5a2d; }
+        .flash.error   { background: #fdf0f0; border-color: var(--rose); color: #7a2020; }
+        .flash.info    { background: #f0f4f7; border-color: #6a8fa0; color: #1a3a4a; }
+
+        main { padding: 40px; max-width: 1400px; margin: 0 auto; }
+        footer { text-align: center; padding: 30px; background: var(--deep); color: var(--muted); font-size: 0.72rem; letter-spacing: 2px; margin-top: 60px; }
+
+        .btn { display: inline-block; padding: 10px 28px; font-family: 'Jost', sans-serif; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; cursor: pointer; border: none; transition: all 0.25s; font-weight: 500; }
+        .btn-primary { background: var(--deep); color: var(--cream); }
+        .btn-primary:hover { background: var(--rose); color: white; }
+        .btn-outline { background: transparent; color: var(--deep); border: 1.5px solid var(--deep); }
+        .btn-outline:hover { background: var(--deep); color: var(--cream); }
+        .btn-gold { background: var(--gold); color: var(--deep); }
+        .btn-gold:hover { background: var(--deep); color: var(--gold); }
+        .btn-danger { background: transparent; color: var(--rose); border: 1.5px solid var(--rose); }
+        .btn-danger:hover { background: var(--rose); color: white; }
+        .btn-sm { padding: 6px 16px; font-size: 0.68rem; }
+
+        .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--deep); letter-spacing: 2px; }
+        .divider { width: 50px; height: 1px; background: var(--gold); margin: 14px 0 28px; }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea, select {
+            width: 100%; padding: 11px 15px; border: 1px solid #d9cfc8;
+            background: white; font-family: 'Jost', sans-serif; font-size: 0.88rem;
+            color: var(--text); outline: none; transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--rose); }
+        textarea { resize: vertical; min-height: 90px; }
+
+        .badge { display: inline-block; padding: 3px 10px; font-size: 0.65rem; letter-spacing: 1.5px; text-transform: uppercase; }
+        .badge-gold { background: var(--gold); color: var(--deep); }
+        .badge-rose { background: var(--rose); color: white; }
+        .badge-green { background: var(--green); color: white; }
+        .badge-gray { background: #ccc; color: #555; }
+    </style>
+    {% block extra_styles %}{% endblock %}
+</head>
+<body>
+<nav>
+    <a href="{{ url_for('index') }}" class="nav-logo">LUM<em>IÈ</em>RE</a>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">Каталог</a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('orders') }}">Заказы</a>
+            {% if current_user.is_admin %}
+                <a href="{{ url_for('admin_dashboard') }}" class="btn-admin btn btn-sm">Админ</a>
+            {% endif %}
+            <a href="{{ url_for('cart') }}" class="nav-cart">
+                🛒
+                {% set count = get_cart_count() %}
+                {% if count > 0 %}<span class="cart-badge">{{ count }}</span>{% endif %}
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn-nav btn btn-sm">Выйти</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Войти</a>
+            <a href="{{ url_for('register') }}" class="btn-nav btn btn-sm">Регистрация</a>
+        {% endif %}
+    </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+<footer>© 2025 LUMIÈRE COSMETICS — BDA-2501</footer>
+</body>
+</html>

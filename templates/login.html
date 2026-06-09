@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Войти — LUMIÈRE{% endblock %}
+{% block extra_styles %}
+<style>
+.auth-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+.auth-box { background: white; border: 1px solid #e5dcd5; padding: 48px; width: 100%; max-width: 420px; }
+.auth-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--deep); margin-bottom: 6px; }
+.auth-sub { font-size: 0.78rem; color: var(--muted); letter-spacing: 1.5px; margin-bottom: 32px; }
+.auth-link { text-align: center; margin-top: 20px; font-size: 0.8rem; color: var(--muted); }
+.auth-link a { color: var(--rose); text-decoration: none; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-title">Добро пожаловать</div>
+    <div class="auth-sub">Войдите в аккаунт LUMIÈRE</div>
+    <div class="divider"></div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="your@email.com" required>
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%">Войти</button>
+    </form>
+    <div class="auth-link">Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></div>
+  </div>
+</div>
+{% endblock %}

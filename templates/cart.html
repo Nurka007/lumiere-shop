@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Корзина — LUMIÈRE{% endblock %}
+{% block extra_styles %}
+<style>
+.cart-layout { display:grid; grid-template-columns:1fr 340px; gap:32px; }
+.cart-items { background:white; border:1px solid #e5dcd5; }
+.cart-item { display:grid; grid-template-columns:90px 1fr auto; gap:20px; align-items:center; padding:20px; border-bottom:1px solid var(--soft); }
+.cart-item:last-child { border-bottom:none; }
+.item-img { width:90px; height:90px; object-fit:cover; }
+.item-placeholder { width:90px; height:90px; background:linear-gradient(135deg,var(--soft),var(--blush)); display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:rgba(44,26,21,.2); }
+.item-brand { font-size:0.65rem; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
+.item-name { font-family:'Cormorant Garamond',serif; font-size:1.1rem; color:var(--deep); margin-bottom:8px; }
+.item-price { font-size:0.85rem; color:var(--muted); }
+.item-controls { display:flex; align-items:center; gap:8px; flex-direction:column; }
+.qty-form { display:flex; align-items:center; gap:6px; }
+.qty-input { width:52px; text-align:center; padding:5px; border:1px solid #d9cfc8; font-family:'Jost',sans-serif; }
+.qty-btn { background:var(--soft); border:1px solid #d9cfc8; width:28px; height:28px; cursor:pointer; font-size:1rem; transition:.2s; }
+.qty-btn:hover { background:var(--blush); }
+.item-total { font-family:'Cormorant Garamond',serif; font-size:1.2rem; color:var(--deep); font-weight:600; }
+
+.cart-summary { background:white; border:1px solid #e5dcd5; padding:28px; height:fit-content; position:sticky; top:90px; }
+.summary-title { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--deep); margin-bottom:20px; }
+.summary-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--soft); font-size:0.85rem; }
+.summary-total { display:flex; justify-content:space-between; padding:16px 0; font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--deep); font-weight:600; }
+.empty-cart { text-align:center; padding:60px 20px; color:var(--muted); }
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Корзина</h1>
+<div class="divider"></div>
+
+{% if items %}
+<div class="cart-layout">
+  <div class="cart-items">
+    {% for item in items %}
+    <div class="cart-item">
+      {% set img = get_image_url(item.product.image_url) %}
+      {% if img %}<img src="{{ img }}" alt="{{ item.product.name }}" class="item-img">
+      {% else %}<div class="item-placeholder">✦</div>{% endif %}
+
+      <div>
+        <div class="item-brand">{{ item.product.brand }}</div>
+        <div class="item-name">{{ item.product.name }}</div>
+        <div class="item-price">{{ "%.0f"|format(item.product.price) }} ₸ / шт.</div>
+      </div>
+
+      <div class="item-controls">
+        <form method="POST" action="{{ url_for('update_cart', item_id=item.id) }}" class="qty-form">
+          <button type="submit" name="quantity" value="{{ item.quantity - 1 }}" class="qty-btn">−</button>
+          <input type="number" name="quantity" value="{{ item.quantity }}" min="0" class="qty-input" onchange="this.form.submit()">
+          <button type="submit" name="quantity" value="{{ item.quantity + 1 }}" class="qty-btn">+</button>
+        </form>
+        <div class="item-total">{{ "%.0f"|format(item.product.price * item.quantity) }} ₸</div>
+        <form method="POST" action="{{ url_for('remove_from_cart', item_id=item.id) }}" style="margin:0">
+          <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="cart-summary">
+    <div class="summary-title">Итого</div>
+    {% for item in items %}
+    <div class="summary-row">
+      <span>{{ item.product.name[:25] }}{% if item.product.name|length > 25 %}...{% endif %} × {{ item.quantity }}</span>
+      <span>{{ "%.0f"|format(item.product.price * item.quantity) }} ₸</span>
+    </div>
+    {% endfor %}
+    <div class="summary-total">
+      <span>К оплате:</span>
+      <span>{{ "%.0f"|format(total) }} ₸</span>
+    </div>
+    <form method="POST" action="{{ url_for('checkout') }}" style="margin-top:16px">
+      <button type="submit" class="btn btn-primary" style="width:100%">Оформить заказ</button>
+    </form>
+    <a href="{{ url_for('index') }}" class="btn btn-outline" style="width:100%;margin-top:10px;text-align:center;display:block;">Продолжить покупки</a>
+  </div>
+</div>
+{% else %}
+<div class="empty-cart">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:5rem;opacity:.2;margin-bottom:16px;">🛒</div>
+  <p style="font-size:.82rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">Корзина пуста</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">Перейти в каталог</a>
+</div>
+{% endif %}
+{% endblock %}

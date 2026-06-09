@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block title %}Заказы — LUMIÈRE Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1 class="admin-title">Заказы</h1>
+</div>
+<div class="table-wrap">
+    <table class="admin-table">
+        <thead><tr><th>№</th><th>Покупатель</th><th>Товары</th><th>Сумма</th><th>Статус</th><th>Дата</th><th>Изменить статус</th></tr></thead>
+        <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.user.name }}<br><small style="color:var(--muted);">{{ order.user.email }}</small></td>
+            <td>
+                {% for item in order.items %}
+                <div style="font-size:.78rem;">{{ item.product.name }} × {{ item.quantity }}</div>
+                {% endfor %}
+            </td>
+            <td><strong>{{ "%.0f"|format(order.total) }} ₸</strong></td>
+            <td>
+                {% if order.status == 'confirmed' %}<span class="badge badge-green">Подтверждён</span>
+                {% elif order.status == 'delivered' %}<span class="badge badge-gold">Доставлен</span>
+                {% elif order.status == 'cancelled' %}<span class="badge badge-rose">Отменён</span>
+                {% else %}<span class="badge badge-gray">{{ order.status }}</span>{% endif %}
+            </td>
+            <td>{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('update_order_status', order_id=order.id) }}" style="display:flex;gap:6px;align-items:center;">
+                    <select name="status" style="padding:5px 8px;font-size:.75rem;width:130px;">
+                        <option value="pending" {% if order.status=='pending' %}selected{% endif %}>В обработке</option>
+                        <option value="confirmed" {% if order.status=='confirmed' %}selected{% endif %}>Подтверждён</option>
+                        <option value="delivered" {% if order.status=='delivered' %}selected{% endif %}>Доставлен</option>
+                        <option value="cancelled" {% if order.status=='cancelled' %}selected{% endif %}>Отменён</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm">OK</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:40px;">Заказов нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

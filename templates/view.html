@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — LUMIÈRE{% endblock %}
+{% block extra_styles %}
+<style>
+.product-detail { display:grid; grid-template-columns:1fr 1fr; gap:56px; max-width:980px; margin:0 auto; background:white; border:1px solid #e5dcd5; padding:48px; }
+.product-img-wrap { position:relative; }
+.product-img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+.product-placeholder { width:100%; aspect-ratio:1; background:linear-gradient(135deg,var(--soft),var(--blush)); display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:7rem; color:rgba(44,26,21,.12); }
+.cat-badge { position:absolute; top:14px; left:14px; background:var(--deep); color:var(--blush); font-size:0.6rem; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; }
+.p-brand { font-size:0.7rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.p-name { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:300; color:var(--deep); line-height:1.2; margin-bottom:18px; }
+.p-price { font-family:'Cormorant Garamond',serif; font-size:2rem; color:var(--rose); margin-bottom:22px; }
+.p-price span { font-family:'Jost',sans-serif; font-size:.8rem; color:var(--muted); }
+.p-desc { font-size:.86rem; line-height:1.8; color:var(--muted); margin-bottom:28px; }
+.p-actions { display:flex; gap:12px; }
+</style>
+{% endblock %}
+{% block content %}
+<div style="margin-bottom:20px;"><a href="{{ url_for('index') }}" style="font-size:.73rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;">← Назад</a></div>
+<div class="product-detail">
+  <div class="product-img-wrap">
+    {% set img = get_image_url(product.image_url) %}
+    {% if img %}<img src="{{ img }}" alt="{{ product.name }}" class="product-img">
+    {% else %}<div class="product-placeholder">✦</div>{% endif %}
+    <span class="cat-badge">{{ product.category }}</span>
+  </div>
+  <div style="display:flex;flex-direction:column;justify-content:center;">
+    <div class="p-brand">{{ product.brand }}</div>
+    <h1 class="p-name">{{ product.name }}</h1>
+    <div class="p-price">{{ "%.0f"|format(product.price) }} <span>тенге</span></div>
+    <div class="divider"></div>
+    {% if product.description %}<p class="p-desc">{{ product.description }}</p>{% endif %}
+    <div class="p-actions">
+      {% if current_user.is_authenticated and not current_user.is_admin %}
+      <form method="POST" action="{{ url_for('add_to_cart', product_id=product.id) }}" style="margin:0">
+        <button type="submit" class="btn btn-primary">В корзину</button>
+      </form>
+      {% elif not current_user.is_authenticated %}
+      <a href="{{ url_for('login') }}" class="btn btn-primary">Войти для покупки</a>
+      {% endif %}
+      {% if current_user.is_authenticated and current_user.is_admin %}
+      <a href="{{ url_for('admin_edit_product', product_id=product.id) }}" class="btn btn-gold">Редактировать</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

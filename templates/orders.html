@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Мои заказы — LUMIÈRE{% endblock %}
+{% block extra_styles %}
+<style>
+.order-card { background:white; border:1px solid #e5dcd5; margin-bottom:20px; }
+.order-header { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--soft); }
+.order-id { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--deep); }
+.order-date { font-size:0.75rem; color:var(--muted); letter-spacing:1px; }
+.order-items { padding:16px 24px; }
+.order-item-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--soft); font-size:0.85rem; }
+.order-item-row:last-child { border:none; }
+.order-footer { padding:14px 24px; background:var(--cream); display:flex; justify-content:space-between; align-items:center; }
+.order-total { font-family:'Cormorant Garamond',serif; font-size:1.3rem; color:var(--deep); font-weight:600; }
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="page-title">Мои заказы</h1>
+<div class="divider"></div>
+
+{% if orders %}
+  {% for order in orders %}
+  <div class="order-card">
+    <div class="order-header">
+      <div>
+        <div class="order-id">Заказ №{{ order.id }}</div>
+        <div class="order-date">{{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</div>
+      </div>
+      {% if order.status == 'confirmed' %}<span class="badge badge-green">Подтверждён</span>
+      {% elif order.status == 'delivered' %}<span class="badge badge-gold">Доставлен</span>
+      {% elif order.status == 'cancelled' %}<span class="badge badge-rose">Отменён</span>
+      {% else %}<span class="badge badge-gray">В обработке</span>{% endif %}
+    </div>
+    <div class="order-items">
+      {% for item in order.items %}
+      <div class="order-item-row">
+        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+        <span>{{ "%.0f"|format(item.price * item.quantity) }} ₸</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="order-footer">
+      <span style="font-size:.75rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Итого</span>
+      <div class="order-total">{{ "%.0f"|format(order.total) }} ₸</div>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+<div style="text-align:center;padding:60px;color:var(--muted);">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:4rem;opacity:.2;margin-bottom:14px;">📦</div>
+  <p style="font-size:.8rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">Заказов пока нет</p>
+  <a href="{{ url_for('index') }}" class="btn btn-primary">Перейти в каталог</a>
+</div>
+{% endif %}
+{% endblock %}

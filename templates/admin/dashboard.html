@@ -1,0 +1,55 @@
+{% extends "admin/base.html" %}
+{% block title %}Дашборд — LUMIÈRE Admin{% endblock %}
+{% block content %}
+<div class="admin-header">
+    <h1 class="admin-title">Дашборд</h1>
+    <a href="{{ url_for('admin_add_product') }}" class="btn btn-primary">+ Добавить товар</a>
+</div>
+
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">Товары</div>
+        <div class="stat-value">{{ total_products }}</div>
+        <div class="stat-sub">в каталоге</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Пользователи</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-sub">зарегистрировано</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Заказы</div>
+        <div class="stat-value">{{ total_orders }}</div>
+        <div class="stat-sub">всего</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Выручка</div>
+        <div class="stat-value" style="font-size:1.8rem;">{{ "{:,.0f}".format(total_revenue) }}</div>
+        <div class="stat-sub">тенге</div>
+    </div>
+</div>
+
+<h2 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--deep);margin-bottom:16px;">Последние заказы</h2>
+<div class="table-wrap">
+    <table class="admin-table">
+        <thead><tr><th>№</th><th>Пользователь</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr></thead>
+        <tbody>
+        {% for order in recent_orders %}
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.user.name }}</td>
+            <td>{{ "%.0f"|format(order.total) }} ₸</td>
+            <td>
+                {% if order.status == 'confirmed' %}<span class="badge badge-green">Подтверждён</span>
+                {% elif order.status == 'delivered' %}<span class="badge badge-gold">Доставлен</span>
+                {% else %}<span class="badge badge-gray">{{ order.status }}</span>{% endif %}
+            </td>
+            <td>{{ order.created_at.strftime('%d.%m.%Y') }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px;">Заказов пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
